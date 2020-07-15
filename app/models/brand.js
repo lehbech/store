@@ -1,6 +1,5 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
 var schemaValidator = require('./validator/schemaValidator');
-
 
 var brandSchema = new mongoose.Schema({
     brandName: {
@@ -8,8 +7,8 @@ var brandSchema = new mongoose.Schema({
         required: true,
         validate: schemaValidator.isAlphaSpace
     },
-    isRequested : { type:Boolean, default:false},
-    image : { type:String, default:''},
+    isRequested: { type: Boolean, default: false },
+    image: { type: String, default: '' },
     addBy: {
         type: String,
         default: 'admin'
@@ -26,7 +25,6 @@ var brandSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-
 });
 
 module.exports = brandSchema;

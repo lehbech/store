@@ -1811,8 +1811,87 @@ var methods = {
 
       res.status(200).json({
         status: res.statusCode,
-        message: 'Your list',
+        message: 'Product Count',
         data: productCount
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: err.status,
+        message: err.message
+      });
+    }
+  },
+  /**
+   * Request to get Total Payment count
+   * @route GET /admin/paymentcount
+   */
+  getpaymentCount: async function(req, res) {
+    // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
+    // console.log(req.headers['authorization'],issueToken)
+    try {
+      const onlineCount = await models.order.find({ paymentType: 'online' }).countDocuments();
+      const offlineCount = await models.order.find({ paymentType: 'offline' }).countDocuments();
+
+      res.status(200).json({
+        status: res.statusCode,
+        message: 'Payment Count',
+        data: {
+          onlineCount,
+          offlineCount
+        }
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: err.status,
+        message: err.message
+      });
+    }
+  },
+  /**
+   * Request to get Most Selling Product
+   * @route GET /admin/mostsellingproduct
+   */
+  getMostSellingProduct: async function(req, res) {
+    // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
+    // console.log(req.headers['authorization'],issueToken)
+    try {
+      const data = await models.order.aggregate([
+        {
+          $group: {
+            productId: '$productId',
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+
+      let maxSellingProductId = data[0].productId;
+      let tempCount = data[0].count;
+      for (let i = 1; i <= data.length; i++) {
+        if (data[i].count > tempCount) {
+          tempCount = data[i].count;
+          maxProductId = data[i].productId;
+        }
+      }
+
+      let minSellingProductId = data[0].productId;
+      let tempCount = data[0].count;
+      for (let i = 1; i <= data.length; i++) {
+        if (data[i].count < tempCount) {
+          tempCount = data[i].count;
+          maxProductId = data[i].productId;
+        }
+      }
+
+      const maxSellingProductDetails = await models.product.find({ _id: maxSellingProductId });
+      const minSellingProductDetails = await models.product.find({ _id: minSellingProductId });
+
+      res.status(200).json({
+        status: res.statusCode,
+        message: 'Payment Count',
+        data: {
+          maxSellingProductDetails,
+          minSellingProductDetails
+        }
       });
     } catch (err) {
       res.status(400).json({

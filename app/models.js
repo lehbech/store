@@ -9,13 +9,14 @@ mongoose.connect(contantObj.MONGO_URL, {
 mongoose.set('runValidators', true);
 
 var user = require('./models/user');
-var category = require("./models/category");
-var subCategory = require("./models/sub-category");
-var product = require("./models/product");
-var store = require("./models/store");
-var cart = require("./models/cart");
-var customercare = require("./models/customercare");
-var brand = require("./models/brand");
+var category = require('./models/category');
+var subCategory = require('./models/sub-category');
+var product = require('./models/product');
+var store = require('./models/store');
+var cart = require('./models/cart');
+var customercare = require('./models/customercare');
+var brand = require('./models/brand');
+var order = require('./models/order');
 
 var database = {
   "user": mongoose.model("user", user),
@@ -26,7 +27,7 @@ var database = {
   "store": mongoose.model("store", store),
   "customercare": mongoose.model('customercare', customercare),
   "brand": mongoose.model('brand', brand),
-}
-
+  "order": mongoose.model('order', order),
+};
 
 module.exports = database;

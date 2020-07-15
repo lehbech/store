@@ -1,22 +1,22 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
 var validationRegx = require('./validator/schemaValidator');
 var Schema = mongoose.Schema;
 
 var storeSchema = new mongoose.Schema({
     // categoryId: [{ type: Schema.Types.ObjectId, ref: 'category' }],
     // subCategoryId: [{ type: Schema.Types.ObjectId, ref: 'subcategory' }],
-    userId : [{ type: Schema.Types.ObjectId, ref: 'user' }],
-    shopLicenseNumber : {type : Boolean,default:false},
-    shopGSTNumber :  {type : String,default:''},
-    panCardNumber : {type:String,default:''},
-    state : {type:String,default:''},
-    city : {type:String,default:''},
-    country : {type:String,default:'India'},
-    shopPlotNumber : {type:String,default:''},
-    ownerName : {type:String,default:''},
-    contactNo : {type:String,default:''},
-    pincode : {type:String,default:''},
-    address : {type:String,default:''},
+    userId: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+    shopLicenseNumber: { type: Boolean, default: false },
+    shopGSTNumber: { type: String, default: '' },
+    panCardNumber: { type: String, default: '' },
+    state: { type: String, default: '' },
+    city: { type: String, default: '' },
+    country: { type: String, default: 'India' },
+    shopPlotNumber: { type: String, default: '' },
+    ownerName: { type: String, default: '' },
+    contactNo: { type: String, default: '' },
+    pincode: { type: String, default: '' },
+    address: { type: String, default: '' },
 
     storeName: {
         type: String,
@@ -38,18 +38,16 @@ var storeSchema = new mongoose.Schema({
         default: 'admin',
         validate: validationRegx.isAlphaSpace
     },
-    isDelete : {type :Boolean, default:false},
-    active : {type :Boolean, default:true},
+    isDelete: { type: Boolean, default: false },
+    active: { type: Boolean, default: true },
     created_at: {
         type: Date,
         default: Date.now
-
     },
     update_at: {
         type: Date,
         default: Date.now
     }
-
 });
 
 module.exports = storeSchema;
