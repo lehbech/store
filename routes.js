@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var controllers = require('./app/controllers');
 var helpers = require('./app/helpers');
-var localFileStorage = require("./app/helpers/localFileStorage");
+var localFileStorage = require('./app/helpers/localFileStorage');
 // var s3Upload = helpers.aws.s3Init();
 var s3Upload = localFileStorage.upload();
 // var s3Upload = localFileStorage.upload();
@@ -32,7 +32,6 @@ router.get('/getAllSubCategory', controllers.UserController.getAllSubCategory);
 router.get('/getAllBrand', controllers.UserController.getAllBrand);
 router.post('/user/requestBrand', controllers.UserController.requestBrand);
 
-
 router.post('/user/reset-password', controllers.UserController.resetPassword);
 router.post('/user/change-password', controllers.UserController.changePassword);
 router.post('/user/verifyToken', controllers.UserController.verifyToken);
@@ -42,9 +41,8 @@ router.get('/getCities', controllers.UserController.getCities);
 
 // JWT Secured
 router.post('/admin/login', controllers.AdminController.login);
-router.post('/admin/image-upload', s3Upload.array("image", 1), controllers.AdminController.imageUpload);
+router.post('/admin/image-upload', s3Upload.array('image', 1), controllers.AdminController.imageUpload);
 router.post('/admin/changeAdminPassword', controllers.AdminController.changeAdminPassword);
-
 
 router.post('/admin/addBrand', controllers.AdminController.addBrand);
 router.get('/admin/getBrand', controllers.AdminController.getAllBrand);
@@ -56,8 +54,6 @@ router.get('/uploadProduct', controllers.AdminController.uploadProduct);
 router.get('/getAllProductList', controllers.AdminController.getAllProductList);
 
 router.get('/uploadCategory', controllers.AdminController.uploadCategory);
-
-
 
 router.post('/admin/addCategory', controllers.AdminController.addCategory);
 router.get('/admin/getCategory', controllers.AdminController.getAllCategory);
@@ -83,12 +79,16 @@ router.post('/admin/getstoreById', controllers.AdminController.getstoreById);
 router.delete('/admin/deletestore', controllers.AdminController.deletestore);
 router.put('/admin/updatestore', controllers.AdminController.updatestore);
 
-
 router.post('/user/addcart', controllers.AdminController.addcart);
 router.get('/user/getcart', controllers.AdminController.getAllcart);
 router.post('/user/getcartById', controllers.AdminController.getcartById);
 router.post('/user/getcartByUserId', controllers.AdminController.getcartUserId);
 router.delete('/user/deletecart', controllers.AdminController.deletecart);
 router.put('/user/updatecart', controllers.AdminController.updatecart);
+
+/*
+ ** Admin Routes
+ */
+router.get('/admin/productcount', controllers.AdminController.getProductCount);
 
 module.exports = router;

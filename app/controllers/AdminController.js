@@ -17,7 +17,7 @@ var methods = {
    * @route POST /admin/login
    * @param {login.model} login.body.required
    */
-  login: async function (req, res) {
+  login: async function(req, res) {
     try {
       var response = await models.user.findOne({
         email: req.body.email
@@ -32,10 +32,10 @@ var methods = {
         });
 
         if (!response.active) {
-          throw ({
+          throw {
             status: 400,
             message: lang.user.message.error.active
-          });
+          };
         } else {
           res.json({
             status: res.statusCode,
@@ -45,12 +45,11 @@ var methods = {
             }
           });
         }
-
       } else {
-        throw ({
+        throw {
           status: 400,
           message: lang.user.message.error.login
-        });
+        };
       }
     } catch (err) {
       res.json({
@@ -68,30 +67,36 @@ var methods = {
    */
   /**
    * Request to change the password for the account
-*    @group Admin
+   *    @group Admin
    * @route POST /admin/changeAdminPassword
    * @param {changeAdminPassword.model} changeAdminPassword.body.required
    * @security JWT
    */
-  changeAdminPassword: async function (req, res) {
+  changeAdminPassword: async function(req, res) {
     try {
       var user = helpers.jwt.verifyJWT(req.headers.authorization);
 
-      var check = await models.user.findOne({
-        _id: user.id
-      }, {
-        password: 1
-      });
+      var check = await models.user.findOne(
+        {
+          _id: user.id
+        },
+        {
+          password: 1
+        }
+      );
 
       if (bcrypt.compareSync(req.body.currentPassword, check.password)) {
         if (req.body.password == req.body.confirmPassword) {
-          var response = await models.user.findOneAndUpdate({
-            _id: user.id
-          }, {
-            $set: {
-              password: bcrypt.hashSync(req.body.password, 10)
+          var response = await models.user.findOneAndUpdate(
+            {
+              _id: user.id
+            },
+            {
+              $set: {
+                password: bcrypt.hashSync(req.body.password, 10)
+              }
             }
-          })
+          );
 
           if (response) {
             res.json({
@@ -99,24 +104,23 @@ var methods = {
               message: lang.user.message.success.changePassword
             });
           } else {
-            throw ({
+            throw {
               status: res.statusCode,
               message: lang.user.message.error.changePassword
-            });
+            };
           }
         } else {
-          throw ({
+          throw {
             status: res.statusCode,
             message: lang.user.message.error.matchPassword
-          });
+          };
         }
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "current password is incorrect"
-        })
+          message: 'current password is incorrect'
+        };
       }
-
     } catch (err) {
       res.json({
         status: err.status,
@@ -125,13 +129,13 @@ var methods = {
     }
   },
   /**
-  * Request to Upload an Image to Amazon S3
-  * @group Admin
-  * @route POST /admin/image-upload
-  * @param {file} image.formData
-  * @security JWT
-  */
-  imageUpload: async function (req, res, next) {
+   * Request to Upload an Image to Amazon S3
+   * @group Admin
+   * @route POST /admin/image-upload
+   * @param {file} image.formData
+   * @security JWT
+   */
+  imageUpload: async function(req, res, next) {
     var user = helpers.jwt.verifyJWT(req.headers.authorization);
 
     console.log(req.files);
@@ -145,9 +149,9 @@ var methods = {
     });
   },
   /**
-     * @typedef addCategory
-     * @property {string} categoryName.required - Category Name is require - eg: website
-     */
+   * @typedef addCategory
+   * @property {string} categoryName.required - Category Name is require - eg: website
+   */
   /**
    * Request to add category
    * @group AdminCategory
@@ -156,15 +160,14 @@ var methods = {
    * @security JWT
    */
 
-  addCategory: async function (req, res) {
+  addCategory: async function(req, res) {
     try {
-      let checkData = await models.category.findOne({ categoryName: req.body.categoryName })
+      let checkData = await models.category.findOne({ categoryName: req.body.categoryName });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "Category With This Name Is Already Present. Please Try A New Category Name."
-        })
-
+          message: 'Category With This Name Is Already Present. Please Try A New Category Name.'
+        };
       }
 
       var response = await new models.category({
@@ -174,14 +177,14 @@ var methods = {
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "Category Successfuly Created.",
+          message: 'Category Successfuly Created.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -196,7 +199,7 @@ var methods = {
    * @route GET /admin/getCategory
    * @security JWT
    */
-  getAllCategory: async function (req, res) {
+  getAllCategory: async function(req, res) {
     try {
       var response = await models.category.find();
 
@@ -206,15 +209,13 @@ var methods = {
           message: 'successfully find category',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -234,7 +235,7 @@ var methods = {
    * @security JWT
    */
 
-  getCategoryById: async function (req, res) {
+  getCategoryById: async function(req, res) {
     try {
       var response = await models.category.findById(req.body.id);
       if (response) {
@@ -243,55 +244,49 @@ var methods = {
           message: 'successfully find category',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'category not found with this id',
-
+          message: 'category not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
 
-
   /**
-    *@typedef deleteCategory
-    */
+   *@typedef deleteCategory
+   */
   /**
    * @route DELETE /admin/deleteCategory
    * @group AdminCategory
    * @param {string} id.query.required - id of category - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deleteCategory: async function (req, res) {
+  deleteCategory: async function(req, res) {
     try {
       var response = await models.category.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete category",
+          message: 'successfully delete category',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "Category not delete by this id"
-        })
+          message: 'Category not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
@@ -306,24 +301,25 @@ var methods = {
    * @param {updateCategory.model} updateCategory.body.required
    * @security JWT
    */
-  updateCategory: async function (req, res) {
+  updateCategory: async function(req, res) {
     try {
       var checkCategoryName = await models.category.findOne({
         categoryName: req.body.categoryName
-      })
+      });
       if (checkCategoryName) {
-        throw ({
+        throw {
           status: 400,
-          message: "Category name is allready present,try other name"
-        })
-      }
-      else {
-        var updateCAtegoryName = await models.category.findOneAndUpdate({
-          _id: mongoose.Types.ObjectId(req.body.id)
-        },
+          message: 'Category name is allready present,try other name'
+        };
+      } else {
+        var updateCAtegoryName = await models.category.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(req.body.id)
+          },
           {
             $set: {
-              categoryName: req.body, categoryName
+              categoryName: req.body,
+              categoryName
             }
           }
         );
@@ -331,30 +327,27 @@ var methods = {
         if (updateCAtegoryName) {
           res.json({
             status: 200,
-            message: "Category name is successfully updated"
-          })
-        }
-        else {
+            message: 'Category name is successfully updated'
+          });
+        } else {
           res.json({
             status: 400,
-            message: "Unable to Update category name."
-
-          })
+            message: 'Unable to Update category name.'
+          });
         }
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
-     * @typedef addSubCategory
-     * @property {string} categoryId.required -  category Id is require - eg: 5e48f29bcbd7373f70edc64e
-     * @property {string} subCategoryName.required - sub category Name is require - eg: flipkart
-     */
+   * @typedef addSubCategory
+   * @property {string} categoryId.required -  category Id is require - eg: 5e48f29bcbd7373f70edc64e
+   * @property {string} subCategoryName.required - sub category Name is require - eg: flipkart
+   */
   /**
    * Request to add sub category
    * @group AdminSubCategory
@@ -363,15 +356,14 @@ var methods = {
    * @security JWT
    */
 
-  addSubCategory: async function (req, res) {
+  addSubCategory: async function(req, res) {
     try {
-      let checkData = await models.subCategory.findOne({ subCategoryName: req.body.subCategoryName })
+      let checkData = await models.subCategory.findOne({ subCategoryName: req.body.subCategoryName });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "subCategory With This Name Is Already Present. Please Try A New subCategory Name."
-        })
-
+          message: 'subCategory With This Name Is Already Present. Please Try A New subCategory Name.'
+        };
       }
 
       var response = await new models.subCategory({
@@ -382,14 +374,14 @@ var methods = {
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "subCategory Successfuly Created.",
+          message: 'subCategory Successfuly Created.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -404,7 +396,7 @@ var methods = {
    * @route GET /admin/getsubCategory
    * @security JWT
    */
-  getAllsubCategory: async function (req, res) {
+  getAllsubCategory: async function(req, res) {
     try {
       var response = await models.subCategory.find();
 
@@ -414,15 +406,13 @@ var methods = {
           message: 'successfully find subCategory',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -442,7 +432,7 @@ var methods = {
    * @security JWT
    */
 
-  getsubCategoryById: async function (req, res) {
+  getsubCategoryById: async function(req, res) {
     try {
       var response = await models.subCategory.findById(req.body.id);
       if (response) {
@@ -451,54 +441,49 @@ var methods = {
           message: 'successfully find subCategory',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'subCategory not found with this id',
-
+          message: 'subCategory not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
 
   /**
-     *@typedef deletesubCategory
-     */
+   *@typedef deletesubCategory
+   */
   /**
    * @route DELETE /admin/deletesubCategory
    * @group AdminSubCategory
    * @param {string} id.query.required - id of Sub category - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deletesubCategory: async function (req, res) {
+  deletesubCategory: async function(req, res) {
     try {
       var response = await models.subCategory.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete subCategory",
+          message: 'successfully delete subCategory',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "subCategory not delete by this id"
-        })
+          message: 'subCategory not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
@@ -513,21 +498,21 @@ var methods = {
    * @param {updatesubCategory.model} updatesubCategory.body.required
    * @security JWT
    */
-  updatesubCategory: async function (req, res) {
+  updatesubCategory: async function(req, res) {
     try {
       var checksubCategoryName = await models.subCategory.findOne({
         subCategoryName: req.body.subCategoryName
-      })
+      });
       if (checksubCategoryName) {
-        throw ({
+        throw {
           status: 400,
-          message: "subCategory name is allready present,try other name"
-        })
-      }
-      else {
-        var updatesubCAtegoryName = await models.subCategory.findOneAndUpdate({
-          _id: mongoose.Types.ObjectId(req.body.id)
-        },
+          message: 'subCategory name is allready present,try other name'
+        };
+      } else {
+        var updatesubCAtegoryName = await models.subCategory.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(req.body.id)
+          },
           {
             $set: {
               subCategoryName: req.body.subCategoryName
@@ -538,32 +523,29 @@ var methods = {
         if (updatesubCAtegoryName) {
           res.json({
             status: 200,
-            message: "subCategory name is successfully updated"
-          })
-        }
-        else {
+            message: 'subCategory name is successfully updated'
+          });
+        } else {
           res.json({
             status: 400,
-            message: "Unable to Update subCategory name."
-
-          })
+            message: 'Unable to Update subCategory name.'
+          });
         }
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
-     * @typedef addProduct
-     * @property {string} productName.required - product Name is require - eg: xyz
-     * @property {string} categoryID.required - category id is require - eg: xyz
-     * @property {string} subCategoryId.required - subCategoryId is require - eg: xyz
-     * @property {string} productImage.required - product Image is require - eg: xyz
-     */
+   * @typedef addProduct
+   * @property {string} productName.required - product Name is require - eg: xyz
+   * @property {string} categoryID.required - category id is require - eg: xyz
+   * @property {string} subCategoryId.required - subCategoryId is require - eg: xyz
+   * @property {string} productImage.required - product Image is require - eg: xyz
+   */
   /**
    * Request to add product
    * @group AdminProduct
@@ -572,15 +554,14 @@ var methods = {
    * @security JWT
    */
 
-  addproduct: async function (req, res) {
+  addproduct: async function(req, res) {
     try {
-      let checkData = await models.product.findOne({ productName: req.body.productName })
+      let checkData = await models.product.findOne({ productName: req.body.productName });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "product With This Name Is Already Present. Please Try A New product Name."
-        })
-
+          message: 'product With This Name Is Already Present. Please Try A New product Name.'
+        };
       }
 
       var response = await new models.product({
@@ -592,14 +573,14 @@ var methods = {
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "product Successfuly Created.",
+          message: 'product Successfuly Created.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -614,7 +595,7 @@ var methods = {
    * @route GET /admin/getproduct
    * @security JWT
    */
-  getAllproduct: async function (req, res) {
+  getAllproduct: async function(req, res) {
     try {
       var response = await models.product.find();
 
@@ -624,15 +605,13 @@ var methods = {
           message: 'successfully find product',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -652,7 +631,7 @@ var methods = {
    * @security JWT
    */
 
-  getproductById: async function (req, res) {
+  getproductById: async function(req, res) {
     try {
       var response = await models.product.findById(req.body.id);
       if (response) {
@@ -661,54 +640,49 @@ var methods = {
           message: 'successfully find product',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'product not found with this id',
-
+          message: 'product not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
 
   /**
-    *@typedef deleteproduct
-    */
+   *@typedef deleteproduct
+   */
   /**
    * @route DELETE /admin/deleteproduct
    * @group AdminProduct
    * @param {string} id.query.required - id of product - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deleteproduct: async function (req, res) {
+  deleteproduct: async function(req, res) {
     try {
       var response = await models.product.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete product",
+          message: 'successfully delete product',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "product not delete by this id"
-        })
+          message: 'product not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
@@ -726,21 +700,21 @@ var methods = {
    * @param {updateproduct.model} updateproduct.body.required
    * @security JWT
    */
-  updateproduct: async function (req, res) {
+  updateproduct: async function(req, res) {
     try {
       var checkproductName = await models.product.findOne({
         productName: req.body.productName
-      })
+      });
       if (checkproductName) {
-        throw ({
+        throw {
           status: 400,
-          message: "product name is allready present,try other name"
-        })
-      }
-      else {
-        var updateproductName = await models.product.findOneAndUpdate({
-          _id: mongoose.Types.ObjectId(req.body.id)
-        },
+          message: 'product name is allready present,try other name'
+        };
+      } else {
+        var updateproductName = await models.product.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(req.body.id)
+          },
           {
             $set: {
               productName: req.body.productName,
@@ -754,29 +728,26 @@ var methods = {
         if (updateproductName) {
           res.json({
             status: 200,
-            message: "product name is successfully updated"
-          })
-        }
-        else {
+            message: 'product name is successfully updated'
+          });
+        } else {
           res.json({
             status: 400,
-            message: "Unable to Update product name."
-
-          })
+            message: 'Unable to Update product name.'
+          });
         }
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
-/*
-  * @property {string} categoryID.required - category id is require - eg: xyz
-  * @property {string} subCategoryId.required - subCategoryId is require - eg: xyz
-  */
+  /*
+   * @property {string} categoryID.required - category id is require - eg: xyz
+   * @property {string} subCategoryId.required - subCategoryId is require - eg: xyz
+   */
   /**
      * @typedef addstore
      * @property {string} storeName.required - store Name is require - eg: xyz
@@ -802,19 +773,15 @@ var methods = {
    * @security JWT
    */
 
-  addstore: async function (req, res) {
+  addstore: async function(req, res) {
     try {
-      let checkData = await models.store.findOne({ storeName: req.body.storeName })
+      let checkData = await models.store.findOne({ storeName: req.body.storeName });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "store With This Name Is Already Present. Please Try A New store Name."
-        })
-
+          message: 'store With This Name Is Already Present. Please Try A New store Name.'
+        };
       }
-
-     
-
 
       var response = await new models.store({
         // categoryID: req.body.categoryID,
@@ -822,28 +789,27 @@ var methods = {
         storeImage: req.body.storeImage,
         storeName: req.body.storeName,
 
-        shopLicenseNumber : req.body.shopLicenseNumber,
-        panCardNumber : req.body.panCardNumber,
-        state : req.body.state,
-        city : req.body.city,
-        shopPlotNumber : req.body.shopPlotNumber,
-        ownerName : req.body.ownerName,
-        contactNo : req.body.contactNo,
-        pincode : req.body.pincode,
-        address : req.body.address,
-
+        shopLicenseNumber: req.body.shopLicenseNumber,
+        panCardNumber: req.body.panCardNumber,
+        state: req.body.state,
+        city: req.body.city,
+        shopPlotNumber: req.body.shopPlotNumber,
+        ownerName: req.body.ownerName,
+        contactNo: req.body.contactNo,
+        pincode: req.body.pincode,
+        address: req.body.address
       }).save();
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "store Successfuly Created.",
+          message: 'store Successfuly Created.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -858,7 +824,7 @@ var methods = {
    * @route GET /admin/getstore
    * @security JWT
    */
-  getAllstore: async function (req, res) {
+  getAllstore: async function(req, res) {
     try {
       var response = await models.store.find();
 
@@ -868,15 +834,13 @@ var methods = {
           message: 'successfully find store',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -896,7 +860,7 @@ var methods = {
    * @security JWT
    */
 
-  getstoreById: async function (req, res) {
+  getstoreById: async function(req, res) {
     try {
       var response = await models.store.findById(req.body.id);
       if (response) {
@@ -905,54 +869,49 @@ var methods = {
           message: 'successfully find store',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'store not found with this id',
-
+          message: 'store not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
 
   /**
-    *@typedef deletestore
-    */
+   *@typedef deletestore
+   */
   /**
    * @route DELETE /admin/deletestore
    * @group Adminstore
    * @param {string} id.query.required - id of store - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deletestore: async function (req, res) {
+  deletestore: async function(req, res) {
     try {
       var response = await models.store.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete store",
+          message: 'successfully delete store',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "store not delete by this id"
-        })
+          message: 'store not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
@@ -970,21 +929,21 @@ var methods = {
    * @param {updatestore.model} updatestore.body.required
    * @security JWT
    */
-  updatestore: async function (req, res) {
+  updatestore: async function(req, res) {
     try {
       var checkstoreName = await models.store.findOne({
         storeName: req.body.storeName
-      })
+      });
       if (checkstoreName) {
-        throw ({
+        throw {
           status: 400,
-          message: "store name is allready present,try other name"
-        })
-      }
-      else {
-        var updatestoreName = await models.store.findOneAndUpdate({
-          _id: mongoose.Types.ObjectId(req.body.id)
-        },
+          message: 'store name is allready present,try other name'
+        };
+      } else {
+        var updatestoreName = await models.store.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(req.body.id)
+          },
           {
             $set: {
               storeName: req.body.storeName,
@@ -998,32 +957,29 @@ var methods = {
         if (updatestoreName) {
           res.json({
             status: 200,
-            message: "store name is successfully updated"
-          })
-        }
-        else {
+            message: 'store name is successfully updated'
+          });
+        } else {
           res.json({
             status: 400,
-            message: "Unable to Update store name."
-
-          })
+            message: 'Unable to Update store name.'
+          });
         }
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
-     * @typedef addcart
-     * @property {string} productName.required - product Name is require - eg: xyz
-     * @property {string} productId.required - product id is require - eg: xyz
-     * @property {string} userId.required - user Id is require - eg: xyz
-     * @property {string} quantity.required - quantity is require - eg: xyz
-     */
+   * @typedef addcart
+   * @property {string} productName.required - product Name is require - eg: xyz
+   * @property {string} productId.required - product id is require - eg: xyz
+   * @property {string} userId.required - user Id is require - eg: xyz
+   * @property {string} quantity.required - quantity is require - eg: xyz
+   */
   /**
    * Request to add cart
    * @group Usercart
@@ -1032,15 +988,14 @@ var methods = {
    * @security JWT
    */
 
-  addcart: async function (req, res) {
+  addcart: async function(req, res) {
     try {
-      let checkData = await models.cart.findOne({ productId: req.body.productId })
+      let checkData = await models.cart.findOne({ productId: req.body.productId });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "This product is allready added."
-        })
-
+          message: 'This product is allready added.'
+        };
       }
 
       var response = await new models.cart({
@@ -1052,14 +1007,14 @@ var methods = {
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "Product is added in your cart.",
+          message: 'Product is added in your cart.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -1074,7 +1029,7 @@ var methods = {
    * @route GET /user/getcart
    * @security JWT
    */
-  getAllcart: async function (req, res) {
+  getAllcart: async function(req, res) {
     try {
       var response = await models.cart.find();
 
@@ -1084,15 +1039,13 @@ var methods = {
           message: 'successfully find cart',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -1112,7 +1065,7 @@ var methods = {
    * @security JWT
    */
 
-  getcartById: async function (req, res) {
+  getcartById: async function(req, res) {
     try {
       var response = await models.cart.findById(req.body.id);
       if (response) {
@@ -1121,27 +1074,24 @@ var methods = {
           message: 'successfully find cart',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'cart not found with this id',
-
+          message: 'cart not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
-    *
-    * @typedef getcartUserId
-    * @property {String} userId.required - Give User by user - eg: 5e48f29bcbd7373f70edc64e
-    */
+   *
+   * @typedef getcartUserId
+   * @property {String} userId.required - Give User by user - eg: 5e48f29bcbd7373f70edc64e
+   */
   /**
    * request to get cart by id
    *  @group Usercart
@@ -1150,7 +1100,7 @@ var methods = {
    * @security JWT
    */
 
-  getcartUserId: async function (req, res) {
+  getcartUserId: async function(req, res) {
     try {
       var response = await models.cart.find({ userId: req.body.userId });
       if (response) {
@@ -1159,61 +1109,56 @@ var methods = {
           message: 'successfully find cart',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'cart not found with this id',
-
+          message: 'cart not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
-    *@typedef deletecart
-    */
+   *@typedef deletecart
+   */
   /**
    * @route DELETE /user/deletecart
    * @group Usercart
    * @param {string} id.query.required - id of cart - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deletecart: async function (req, res) {
+  deletecart: async function(req, res) {
     try {
       var response = await models.cart.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete cart",
+          message: 'successfully delete cart',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "cart not delete by this id"
-        })
+          message: 'cart not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
    * @typedef updatecart
    * @property {string} productName.required - product Name is require - eg: xyz
-     * @property {string} productId.required - product id is require - eg: xyz
-      * @property {string} id.required - id is require - eg: xyz
-     * @property {string} quantity.required - quantity is require - eg: xyz
+   * @property {string} productId.required - product id is require - eg: xyz
+   * @property {string} id.required - id is require - eg: xyz
+   * @property {string} quantity.required - quantity is require - eg: xyz
    */
   /**
    * Request to update cart name
@@ -1223,11 +1168,11 @@ var methods = {
    * @security JWT
    */
 
-  updatecart: async function (req, res) {
+  updatecart: async function(req, res) {
     try {
       var checkcartName = await models.cart.findOne({
         productId: req.body.productId
-      })
+      });
       // if (checkcartName) {
       //   throw ({
       //     status: 400,
@@ -1235,9 +1180,28 @@ var methods = {
       //   })
       // }
       // else {
-        var updatecartName = await models.cart.findOneAndUpdate({
+      var updatecartName = await models.cart.findOneAndUpdate(
+        {
           _id: mongoose.Types.ObjectId(req.body.id)
         },
+        {
+          $set: {
+            productName: req.body.productName,
+            quantity: req.body.quantity
+          }
+        }
+      );
+
+      if (updatecartName) {
+        res.json({
+          status: 200,
+          message: 'cart is successfully updated'
+        });
+      } else {
+        var newupdatecartName = await models.cart.findOneAndUpdate(
+          {
+            productId: mongoose.Types.ObjectId(req.body.productId)
+          },
           {
             $set: {
               productName: req.body.productName,
@@ -1245,74 +1209,52 @@ var methods = {
             }
           }
         );
-
-        if (updatecartName) {
+        if (newupdatecartName) {
           res.json({
             status: 200,
-            message: "cart is successfully updated"
-          })
-        }
-        else {
-
-          var newupdatecartName = await models.cart.findOneAndUpdate({
-            productId: mongoose.Types.ObjectId(req.body.productId)
-          },
-            {
-              $set: {
-                productName: req.body.productName,
-                quantity: req.body.quantity
-              }
-            }
-          );
-          if(newupdatecartName){
-             res.json({
-            status: 200,
-            message: "cart is successfully updated"
-          })
-          }else{
-            var response = await new models.cart({
-              productId: req.body.productId,
-              userId: req.body.userId,
-              productName: req.body.productName,
-              quantity: req.body.quantity
-            }).save();
-            if (response) {
-              res.json({
-                status: res.statusCode,
-                message: "Product is added in your cart.",
-                data: response
-              });
-            } else {
-              throw ({
-                status: 400,
-                message: "Error In Creation Created."
-              })
-            }
+            message: 'cart is successfully updated'
+          });
+        } else {
+          var response = await new models.cart({
+            productId: req.body.productId,
+            userId: req.body.userId,
+            productName: req.body.productName,
+            quantity: req.body.quantity
+          }).save();
+          if (response) {
+            res.json({
+              status: res.statusCode,
+              message: 'Product is added in your cart.',
+              data: response
+            });
+          } else {
+            throw {
+              status: 400,
+              message: 'Error In Creation Created.'
+            };
           }
-
-          
-          // res.json({
-          //   status: 400,
-          //   message: "Unable to Update cart name."
-          // })
         }
+
+        // res.json({
+        //   status: 400,
+        //   message: "Unable to Update cart name."
+        // })
+      }
       // }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
-
 
   // FOR BRAND **********************************************************
 
   /**
-     * @typedef addBrand
-     * @property {string} brandName.required - Brand Name is require - eg: website
-     */
+   * @typedef addBrand
+   * @property {string} brandName.required - Brand Name is require - eg: website
+   */
   /**
    * Request to add brand
    * @group AdminBrand
@@ -1321,33 +1263,32 @@ var methods = {
    * @security JWT
    */
 
-  addBrand: async function (req, res) {
+  addBrand: async function(req, res) {
     try {
-      let checkData = await models.brand.findOne({ brandName: req.body.brandName })
+      let checkData = await models.brand.findOne({ brandName: req.body.brandName });
       if (checkData) {
-        throw ({
+        throw {
           status: 400,
-          message: "Brand With This Name Is Already Present. Please Try A New Brand Name."
-        })
-
+          message: 'Brand With This Name Is Already Present. Please Try A New Brand Name.'
+        };
       }
 
       var response = await new models.brand({
         brandName: req.body.brandName,
-        isRequested : true
+        isRequested: true
       }).save();
       console.log(response);
       if (response) {
         res.json({
           status: res.statusCode,
-          message: "Brand Successfuly Created.",
+          message: 'Brand Successfuly Created.',
           data: response
         });
       } else {
-        throw ({
+        throw {
           status: 400,
-          message: "Error In Creation Created."
-        })
+          message: 'Error In Creation Created.'
+        };
       }
     } catch (err) {
       res.json({
@@ -1362,9 +1303,9 @@ var methods = {
    * @route GET /admin/getBrand
    * @security JWT
    */
-  getAllBrand: async function (req, res) {
+  getAllBrand: async function(req, res) {
     try {
-      var response = await models.brand.find({isRequested:true});
+      var response = await models.brand.find({ isRequested: true });
 
       if (response) {
         res.json({
@@ -1372,15 +1313,13 @@ var methods = {
           message: 'successfully find brand',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 400,
           message: 'Error In find all created'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
@@ -1400,7 +1339,7 @@ var methods = {
    * @security JWT
    */
 
-  getBrandById: async function (req, res) {
+  getBrandById: async function(req, res) {
     try {
       var response = await models.brand.findById(req.body.id);
       if (response) {
@@ -1409,55 +1348,49 @@ var methods = {
           message: 'successfully find brand',
           data: response
         });
-      }
-      else {
+      } else {
         res.json({
           status: 200,
-          message: 'brand not found with this id',
-
+          message: 'brand not found with this id'
         });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
 
-
   /**
-    *@typedef deleteBrand
-    */
+   *@typedef deleteBrand
+   */
   /**
    * @route DELETE /admin/deleteBrand
    * @group AdminBrand
    * @param {string} id.query.required - id of brand - eg: 5e045be4f9b0a433fd7f4b88
    * @security JWT
    */
-  deleteBrand: async function (req, res) {
+  deleteBrand: async function(req, res) {
     try {
       var response = await models.brand.deleteOne({ _id: mongoose.Types.ObjectId(req.query.id) });
       if (response) {
         res.json({
           status: 200,
-          message: "successfully delete brand",
+          message: 'successfully delete brand',
           data: response
-        })
-      }
-      else {
+        });
+      } else {
         res.json({
           status: 400,
-          message: "Brand not delete by this id"
-        })
+          message: 'Brand not delete by this id'
+        });
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
   /**
@@ -1472,24 +1405,25 @@ var methods = {
    * @param {updateBrand.model} updateBrand.body.required
    * @security JWT
    */
-  updateBrand: async function (req, res) {
+  updateBrand: async function(req, res) {
     try {
       var checkBrandName = await models.brand.findOne({
         brandName: req.body.brandName
-      })
+      });
       if (checkBrandName) {
-        throw ({
+        throw {
           status: 400,
-          message: "Brand name is allready present,try other name"
-        })
-      }
-      else {
-        var updateCAtegoryName = await models.brand.findOneAndUpdate({
-          _id: mongoose.Types.ObjectId(req.body.id)
-        },
+          message: 'Brand name is allready present,try other name'
+        };
+      } else {
+        var updateCAtegoryName = await models.brand.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(req.body.id)
+          },
           {
             $set: {
-              brandName: req.body, brandName
+              brandName: req.body,
+              brandName
             }
           }
         );
@@ -1497,26 +1431,22 @@ var methods = {
         if (updateCAtegoryName) {
           res.json({
             status: 200,
-            message: "Brand name is successfully updated"
-          })
-        }
-        else {
+            message: 'Brand name is successfully updated'
+          });
+        } else {
           res.json({
             status: 400,
-            message: "Unable to Update brand name."
-
-          })
+            message: 'Unable to Update brand name.'
+          });
         }
       }
-    }
-    catch (err) {
+    } catch (err) {
       res.json({
         status: err.status,
         message: err.message
-      })
+      });
     }
   },
-
 
   /**
    * Request to Activate/deactivate store
@@ -1525,28 +1455,31 @@ var methods = {
    * @param {String} id.query - Store ID
    * @security JWT
    */
-  approveBrand : async function (req, res) {
+  approveBrand: async function(req, res) {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
     try {
-      var response = await models.brand.findOneAndUpdate({
-        _id: req.query.id
-      }, {
-        $set: {
-          isRequested: true,
+      var response = await models.brand.findOneAndUpdate(
+        {
+          _id: req.query.id
+        },
+        {
+          $set: {
+            isRequested: true
+          }
         }
-      });
+      );
 
       if (response) {
         res.json({
           status: res.statusCode,
-          message: req.body.status ? "Your brand approve successfully" : "Your brand approve successfully!"
+          message: req.body.status ? 'Your brand approve successfully' : 'Your brand approve successfully!'
         });
       } else {
         res.json({
           status: res.statusCode,
           message: lang.user.message.error.activate
-        })
+        });
       }
     } catch (err) {
       res.json({
@@ -1563,263 +1496,261 @@ var methods = {
    * @param {String} id.query - Store ID
    * @security JWT
    */
-  uploadProduct : async function (req, res) {
+  uploadProduct: async function(req, res) {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
-        try {
-            const doc = new GoogleSpreadsheet('1X4XKSoFuSjEHwG-uNRdxGMevCwr5-73lFwY4h86-4b8');
-            // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
-            doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s');
-            await doc.loadInfo(); // loads document properties and worksheets
-            console.log(doc.title);
-            
-            const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-            console.log(sheet.title);
-            const rows = await sheet.getRows(); // can pass in { limit, offset }
-            var resdata = [];  
-            for(let item of rows){
-              let productRes = null
-              if(item['Product Name']!=null){
-             
-            if(item['Category']){
-              var responseCat = await models.category.findOne({categoryName:item['Category']});
-             }
-              if(item['Subcategory']){
-                var responseSub = await models.subCategory.findOne({subCategoryName:item['Subcategory']});
-              }
-              if(item['Brand']){
-                var responsebrand = await models.brand.findOne({brandName:item['Brand']});
-              }
-              
-              console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk',responseCat,responseSub);
+    try {
+      const doc = new GoogleSpreadsheet('1X4XKSoFuSjEHwG-uNRdxGMevCwr5-73lFwY4h86-4b8');
+      // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
+      doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s');
+      await doc.loadInfo(); // loads document properties and worksheets
+      console.log(doc.title);
 
-              if(responseCat){
-                catId = responseCat._id;
-                
-              }else{
-               let newCatRes =  new models.category({
-                  categoryName: item['Category']
-                }).save();
-                catId= newCatRes._id;
-              }
-
-              if(responseSub){
-                subcatId = responseSub._id;
-              }else{
-                let newSubcatId =  new models.subCategory({
-                  subCategoryName: item['Subcategory']
-                }).save();
-                subcatId= newSubcatId._id;
-              }
-
-              if(responsebrand){
-                brandId = responsebrand._id;
-              }else{
-                let newBrandId =  new models.brand({
-                  brandName: item['Brand']
-                }).save();
-                brandId= newSubcatId._id;
-              }
-
-              var obj = {
-                mrp:item['MRP Price'],
-                sellingPrice:item['Selling Price'],
-                currency:item['Currency'],
-                brand:brandId ? brandId : null,
-                weight:item['Weight'],
-                unit:item['Unit'],
-                quantity:item['Quantity'],
-                containerType:item['Container Type'],
-                minQuantity:item['Min Quantity'],
-                productImage:item['Image'] ,
-                productName : item['Product Name'],
-                subCategoryId : subcatId ? subcatId : null,
-                categoryID : catId ? catId : null,
-                isDelete:false
-              }
-              
-              var productCat = await models.product.findOne({productName:item['Product Name']});
-             
-              if(productCat){
-                await models.product.deleteOne({_id: productCat._id});
-              }
-              productRes = await new models.product(obj).save();
-              resdata.push(productRes);
-              console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',obj,productCat,resdata)
-              // console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk',item['Product Name'],responseCat,responseSub,catId,subcatId);
-            }
-           
+      const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+      console.log(sheet.title);
+      const rows = await sheet.getRows(); // can pass in { limit, offset }
+      var resdata = [];
+      for (let item of rows) {
+        let productRes = null;
+        if (item['Product Name'] != null) {
+          if (item['Category']) {
+            var responseCat = await models.category.findOne({ categoryName: item['Category'] });
           }
-          res.json({
-            status: res.status,
-            message: 'Upload successfully',
-            data:resdata
-          });
-        } catch (err) {
-          res.json({
-            status: err.status,
-            message: err.message
-          });
+          if (item['Subcategory']) {
+            var responseSub = await models.subCategory.findOne({ subCategoryName: item['Subcategory'] });
+          }
+          if (item['Brand']) {
+            var responsebrand = await models.brand.findOne({ brandName: item['Brand'] });
+          }
+
+          console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk', responseCat, responseSub);
+
+          if (responseCat) {
+            catId = responseCat._id;
+          } else {
+            let newCatRes = new models.category({
+              categoryName: item['Category']
+            }).save();
+            catId = newCatRes._id;
+          }
+
+          if (responseSub) {
+            subcatId = responseSub._id;
+          } else {
+            let newSubcatId = new models.subCategory({
+              subCategoryName: item['Subcategory']
+            }).save();
+            subcatId = newSubcatId._id;
+          }
+
+          if (responsebrand) {
+            brandId = responsebrand._id;
+          } else {
+            let newBrandId = new models.brand({
+              brandName: item['Brand']
+            }).save();
+            brandId = newSubcatId._id;
+          }
+
+          var obj = {
+            mrp: item['MRP Price'],
+            sellingPrice: item['Selling Price'],
+            currency: item['Currency'],
+            brand: brandId ? brandId : null,
+            weight: item['Weight'],
+            unit: item['Unit'],
+            quantity: item['Quantity'],
+            containerType: item['Container Type'],
+            minQuantity: item['Min Quantity'],
+            productImage: item['Image'],
+            productName: item['Product Name'],
+            subCategoryId: subcatId ? subcatId : null,
+            categoryID: catId ? catId : null,
+            isDelete: false
+          };
+
+          var productCat = await models.product.findOne({ productName: item['Product Name'] });
+
+          if (productCat) {
+            await models.product.deleteOne({ _id: productCat._id });
+          }
+          productRes = await new models.product(obj).save();
+          resdata.push(productRes);
+          console.log(
+            'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
+            obj,
+            productCat,
+            resdata
+          );
+          // console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk',item['Product Name'],responseCat,responseSub,catId,subcatId);
         }
+      }
+      res.json({
+        status: res.status,
+        message: 'Upload successfully',
+        data: resdata
+      });
+    } catch (err) {
+      res.json({
+        status: err.status,
+        message: err.message
+      });
+    }
   },
 
-
-    /**
+  /**
    * Request to upload category
    * @group AdminBrand
    * @route GET /uploadCategory
    */
-  uploadCategory : async function (req, res) {
+  uploadCategory: async function(req, res) {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
-        try {
-            const doc = new GoogleSpreadsheet('1x2hOY6S_uXeBrQzDetUVzuJyGXG0ocunNpJg2_GbNbg');
-            // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
-            doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s'); 
-            await doc.loadInfo(); // loads document properties and worksheets
-            console.log(doc.title);
-            
-            const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
-            console.log(sheet.title);
-            const rows = await sheet.getRows(); // can pass in { limit, offset }
-            var resdata = [];  
-            for(let item of rows){
-              let productRes = null
-              if(item['Category Name']!=null){
-                var responseCat= null;    
-            if(item['Category Name']){
-              responseCat = await models.category.findOne({categoryName:item['Category Name']});
-             }
-              if(item['Subcategory Name']){
-                var responseSub = await models.subCategory.findOne({subCategoryName:item['Subcategory Name']});
-              }
-              if(item['Brand']){
-                var responsebrand = await models.brand.findOne({brandName:item['Brand']});
-              }
-              
-             
+    try {
+      const doc = new GoogleSpreadsheet('1x2hOY6S_uXeBrQzDetUVzuJyGXG0ocunNpJg2_GbNbg');
+      // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
+      doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s');
+      await doc.loadInfo(); // loads document properties and worksheets
+      console.log(doc.title);
 
-              if(responseCat && responseCat._id){
-                catId = responseCat._id;
-                console.log('i matched',responseCat)
-              }else{
-               let newCatRes = await new models.category({
-                  categoryName: item['Category Name'],
-                  image : item['Image'],
-                }).save();
-                catId= newCatRes._id;
-                
-              }
-              resdata.push(responseCat);
-
-              if(responseSub){
-                subcatId = responseSub._id;
-              }else{
-                let newSubcatId = await new models.subCategory({
-                  subCategoryName: item['Subcategory Name'],
-                  categoryId:catId  ?catId :null,
-                  image : item['subcat_Image'],
-                }).save();
-                subcatId= newSubcatId._id;
-              }
-
-              resdata.push(responseSub);
-
-              if(responsebrand){
-                brandId = responsebrand._id;
-              }else{
-                let newBrandId = await new models.brand({
-                  brandName: item['Brand'],
-                  image : item['brand_Image'],
-                }).save();
-                brandId= newBrandId._id;
-              }
-              resdata.push(responsebrand);
-
-              console.log('(((((((((((((((((((((((((((((((((((((((((((((',catId,subcatId,brandId)
-
-              // var catobj = {
-              //   categoryName:item['Category Name'],
-              //   image : item['Image'],
-              // }
-              // var cat1 = await models.category.findOne({categoryName:item['Category Name']});
-              // if(cat1){
-              //   await models.category.deleteOne({_id: cat1._id});
-              // }
-              // catRes = await new models.category(catobj).save();
-              // resdata.push(catRes);
-
-              console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk',catId,subcatId,brandId,item['Category Name'],item['Subcategory Name']);
-
-
-              // var subcatobj = {
-              //   subCategoryName:item['Subcategory Name'],
-              //   image : item['subcat_Image'],
-              //   categoryId:catId  ?catId :null
-              // }
-              // var subcat1 = await models.subCategory.findOne({subCategoryName:item['Subcategory Name']});
-              // if(subcat1){
-              //   await models.subCategory.deleteOne({_id: subcat1._id});
-              // }
-              // subcatRes = await new models.subCategory(subcatobj).save();
-              // resdata.push(subcatRes);
-
-             
-
-              // var brandObj = {
-              //   brandName:item['Brand'],
-              //   image : item['brand_Image'],
-              //   // categoryId:catId  ?catId :null
-              // }
-              // var brand1 = await models.brand.findOne({brandName:item['Brand']});
-              // if(brand1){
-              //   await models.brand.deleteOne({_id: brand1._id});
-              // }
-              // brandRes = await new models.brand(brandObj).save();
-              // resdata.push(brandRes);
-
-              // console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',obj,productCat,resdata)
-            }
-           
+      const sheet = doc.sheetsByIndex[0]; // or use doc.sheetsById[id]
+      console.log(sheet.title);
+      const rows = await sheet.getRows(); // can pass in { limit, offset }
+      var resdata = [];
+      for (let item of rows) {
+        let productRes = null;
+        if (item['Category Name'] != null) {
+          var responseCat = null;
+          if (item['Category Name']) {
+            responseCat = await models.category.findOne({ categoryName: item['Category Name'] });
           }
-          res.json({
-            status: res.status,
-            message: 'Upload successfully',
-            data:resdata
-          });
-        } catch (err) {
-          res.json({
-            status: err.status,
-            message: err.message
-          });
+          if (item['Subcategory Name']) {
+            var responseSub = await models.subCategory.findOne({ subCategoryName: item['Subcategory Name'] });
+          }
+          if (item['Brand']) {
+            var responsebrand = await models.brand.findOne({ brandName: item['Brand'] });
+          }
+
+          if (responseCat && responseCat._id) {
+            catId = responseCat._id;
+            console.log('i matched', responseCat);
+          } else {
+            let newCatRes = await new models.category({
+              categoryName: item['Category Name'],
+              image: item['Image']
+            }).save();
+            catId = newCatRes._id;
+          }
+          resdata.push(responseCat);
+
+          if (responseSub) {
+            subcatId = responseSub._id;
+          } else {
+            let newSubcatId = await new models.subCategory({
+              subCategoryName: item['Subcategory Name'],
+              categoryId: catId ? catId : null,
+              image: item['subcat_Image']
+            }).save();
+            subcatId = newSubcatId._id;
+          }
+
+          resdata.push(responseSub);
+
+          if (responsebrand) {
+            brandId = responsebrand._id;
+          } else {
+            let newBrandId = await new models.brand({
+              brandName: item['Brand'],
+              image: item['brand_Image']
+            }).save();
+            brandId = newBrandId._id;
+          }
+          resdata.push(responsebrand);
+
+          console.log('(((((((((((((((((((((((((((((((((((((((((((((', catId, subcatId, brandId);
+
+          // var catobj = {
+          //   categoryName:item['Category Name'],
+          //   image : item['Image'],
+          // }
+          // var cat1 = await models.category.findOne({categoryName:item['Category Name']});
+          // if(cat1){
+          //   await models.category.deleteOne({_id: cat1._id});
+          // }
+          // catRes = await new models.category(catobj).save();
+          // resdata.push(catRes);
+
+          console.log(
+            'kkkkkkkkkkkkkkkkkkkkkkkkkk',
+            catId,
+            subcatId,
+            brandId,
+            item['Category Name'],
+            item['Subcategory Name']
+          );
+
+          // var subcatobj = {
+          //   subCategoryName:item['Subcategory Name'],
+          //   image : item['subcat_Image'],
+          //   categoryId:catId  ?catId :null
+          // }
+          // var subcat1 = await models.subCategory.findOne({subCategoryName:item['Subcategory Name']});
+          // if(subcat1){
+          //   await models.subCategory.deleteOne({_id: subcat1._id});
+          // }
+          // subcatRes = await new models.subCategory(subcatobj).save();
+          // resdata.push(subcatRes);
+
+          // var brandObj = {
+          //   brandName:item['Brand'],
+          //   image : item['brand_Image'],
+          //   // categoryId:catId  ?catId :null
+          // }
+          // var brand1 = await models.brand.findOne({brandName:item['Brand']});
+          // if(brand1){
+          //   await models.brand.deleteOne({_id: brand1._id});
+          // }
+          // brandRes = await new models.brand(brandObj).save();
+          // resdata.push(brandRes);
+
+          // console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',obj,productCat,resdata)
         }
+      }
+      res.json({
+        status: res.status,
+        message: 'Upload successfully',
+        data: resdata
+      });
+    } catch (err) {
+      res.json({
+        status: err.status,
+        message: err.message
+      });
+    }
   },
-
-
-  
 
   /**
    * Request to get list
    * @group getAllProductList
    * @route GET /getAllProductList
    */
-  getAllProductList : async function (req, res) {
+  getAllProductList: async function(req, res) {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
     try {
-      var response = await models.product.find({isDelete:false});
+      var response = await models.product.find({ isDelete: false });
 
       if (response) {
         res.json({
           status: res.statusCode,
-          message:  "Your list",
-          data:response
+          message: 'Your list',
+          data: response
         });
       } else {
         res.json({
           status: res.statusCode,
           message: lang.user.message.error.activate
-        })
+        });
       }
     } catch (err) {
       res.json({
@@ -1829,8 +1760,67 @@ var methods = {
     }
   },
 
+  /**
+   * Request to get Total Product count
+   * @route GET /admin/productcount
+   */
+  getAllProductList: async function(req, res) {
+    // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
+    // console.log(req.headers['authorization'],issueToken)
+    try {
+      const productCount = await models.product.count();
 
+      if (!productCount) {
+        res.status(400).json({
+          stat
+        });
+      }
 
-}
+      if (response) {
+        res.json({
+          status: res.statusCode,
+          message: 'Your list',
+          data: response
+        });
+      } else {
+        res.json({
+          status: res.statusCode,
+          message: lang.user.message.error.activate
+        });
+      }
+    } catch (err) {
+      res.json({
+        status: err.status,
+        message: err.message
+      });
+    }
+  },
+  /**
+   * Request to get Total Product count
+   * @route GET /admin/productcount
+   */
+  getProductCount: async function(req, res) {
+    // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
+    // console.log(req.headers['authorization'],issueToken)
+    try {
+      const productCount = await models.product.count();
+
+      if (!productCount) {
+        return Error('Their is no product in database');
+      }
+
+      res.status(200).json({
+        status: res.statusCode,
+        message: 'Your list',
+        data: productCount
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: err.status,
+        message: err.message
+      });
+    }
+  }
+};
 
 module.exports = methods;

@@ -84,6 +84,7 @@ async function jwtCheck(req, res, next) {
             "/user/check-user",
             "/user/login",
             "/user/register",
+            "***TEST***"
         ];
 
         if (pathArray.includes(req.path)) {
