@@ -1874,7 +1874,7 @@ var methods = {
       }
 
       let minSellingProductId = data[0].productId;
-      let tempCount = data[0].count;
+      tempCount = data[0].count;
       for (let i = 1; i <= data.length; i++) {
         if (data[i].count < tempCount) {
           tempCount = data[i].count;
