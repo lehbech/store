@@ -92,5 +92,6 @@ router.put('/user/updatecart', controllers.AdminController.updatecart);
 router.get('/admin/productcount', controllers.AdminController.getProductCount);
 router.get('/admin/paymentcount', controllers.AdminController.getpaymentCount);
 router.get('/admin/maxminsellingproduct', controllers.AdminController.getMostSellingProduct);
+router.get('/admin/sellingcount', controllers.AdminController.sellingcount);
 
 module.exports = router;

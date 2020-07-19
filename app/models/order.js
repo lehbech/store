@@ -16,6 +16,10 @@ var orderSchema = new mongoose.Schema({
         required: true,
         validate: validationRegx.isAlphaSpace
     },
+    price: {
+        type: Number,
+        default: 1
+    },
     quantity: {
         type: String,
         required: true

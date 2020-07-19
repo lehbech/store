@@ -1512,7 +1512,7 @@ var methods = {
       var resdata = [];
       for (let item of rows) {
         let productRes = null;
-        console.log(item)
+        console.log(item);
         if (item['Product Name'] != null) {
           if (item['Category']) {
             var responseCat = await models.category.findOne({ categoryName: item['Category'] });
@@ -1577,7 +1577,7 @@ var methods = {
           }
           productRes = await new models.product(obj).save();
           resdata.push(productRes);
-         /* console.log(
+          /* console.log(
             'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
             obj,
             productCat,
@@ -1893,6 +1893,38 @@ var methods = {
           maxSellingProductDetails,
           minSellingProductDetails
         }
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: err.status,
+        message: err.message
+      });
+    }
+  },
+  /**
+   * Request to get Weekly, daily, monthly, yearly stats
+   * @route GET /admin/sellingcount
+   */
+  sellingcount: async function(req, res) {
+    try {
+      const data = await models.order.aggregate([
+        {
+          $group: {
+            _id: {
+              day: { $dayOfMonth: '$created_at' },
+              month: { $month: '$created_at' },
+              year: { $year: '$created_at' }
+            },
+            totalAmount: { $sum: { $multiply: ['$price', '$quantity'] } },
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+
+      res.status(200).json({
+        status: res.statusCode,
+        message: 'Payment Record Daily Monthly',
+        data
       });
     } catch (err) {
       res.status(400).json({
