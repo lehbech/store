@@ -1500,7 +1500,7 @@ var methods = {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
     try {
-      const doc = new GoogleSpreadsheet('1X4XKSoFuSjEHwG-uNRdxGMevCwr5-73lFwY4h86-4b8');
+      const doc = new GoogleSpreadsheet('13jRBIfXmdZgyomByQ620VzirX2LShS_hTBGFrhtYS5w');
       // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
       doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s');
       await doc.loadInfo(); // loads document properties and worksheets
@@ -1512,6 +1512,7 @@ var methods = {
       var resdata = [];
       for (let item of rows) {
         let productRes = null;
+        console.log(item)
         if (item['Product Name'] != null) {
           if (item['Category']) {
             var responseCat = await models.category.findOne({ categoryName: item['Category'] });
@@ -1523,7 +1524,7 @@ var methods = {
             var responsebrand = await models.brand.findOne({ brandName: item['Brand'] });
           }
 
-          console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk', responseCat, responseSub);
+          //console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk', responseCat, responseSub);
 
           if (responseCat) {
             catId = responseCat._id;
@@ -1576,12 +1577,12 @@ var methods = {
           }
           productRes = await new models.product(obj).save();
           resdata.push(productRes);
-          console.log(
+         /* console.log(
             'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
             obj,
             productCat,
             resdata
-          );
+          );*/
           // console.log('kkkkkkkkkkkkkkkkkkkkkkkkkk',item['Product Name'],responseCat,responseSub,catId,subcatId);
         }
       }
@@ -1607,7 +1608,7 @@ var methods = {
     // var issueToken = helpers.jwt.verifyJWT(req.headers['authorization']);
     // console.log(req.headers['authorization'],issueToken)
     try {
-      const doc = new GoogleSpreadsheet('1x2hOY6S_uXeBrQzDetUVzuJyGXG0ocunNpJg2_GbNbg');
+      const doc = new GoogleSpreadsheet('1LtQWRIFOUBNgW_InurcRvgStnGE1k2j8NKbkjrmIJBY');
       // https://docs.google.com/spreadsheets/d/1SJv8Oqin75_6LyRR4dGp735qDG4zPGknZmVCeigaMHI/edit?ts=5ed47eeb#gid=0
       doc.useApiKey('AIzaSyDxdLSrzbRmIJLA6iDYAjTWNiFqi-gSu5s');
       await doc.loadInfo(); // loads document properties and worksheets
