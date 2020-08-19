@@ -11,7 +11,7 @@ var app = express();
 var models = require('./app/models');
 var helpers = require('./app/helpers');
 var lang = require('./app/lang');
-var contantObj = require("./constant");
+var contantObj = require('./constant');
 var debug = require('debug')('boilerplate:server');
 var http = require('http');
 // Swagger Init
@@ -21,22 +21,18 @@ expressSwagger({
         info: {
             title: contantObj.SWAGGER_TITLE,
             description: contantObj.SWAGGER_DESCRIPTION,
-            version: contantObj.SWAGGER_VERSION,
+            version: contantObj.SWAGGER_VERSION
         },
-        host: "",
-        consumes: [
-            "application/json"
-        ],
-        produces: [
-            "application/json"
-        ],
+        host: '',
+        consumes: ['application/json'],
+        produces: ['application/json'],
         schemes: ['http', 'https'],
         securityDefinitions: {
             JWT: {
                 type: 'apiKey',
                 in: 'header',
                 name: 'Authorization',
-                description: "Authentication Token for Grocery Store API",
+                description: 'Authentication Token for Grocery Store API'
             }
         }
     },
@@ -47,7 +43,7 @@ expressSwagger({
 // Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || 3000);
 app.set('port', port);
-console.log('i am here....',port)
+console.log('i am here....', port);
 
 // Express Settings
 app.use(logger('combined'));
@@ -71,21 +67,24 @@ app.use('/', require('./routes'));
 async function jwtCheck(req, res, next) {
     try {
         var pathArray = [
-            "/",
-            "/uploadProduct",
-            "/uploadCategory",
-            "/getAllProductList",
-            "/getAllCategory",
+            '/',
+            '/uploadProduct',
+            '/uploadCategory',
+            '/getAllProductList',
+            '/getAllCategory',
             '/getAllSubCategory',
-            "/getAllBrand",
-            "/getState",
-            "/getCities",
-            "/admin/login",
-            "/user/check-user",
-            "/user/login",
-            "/user/register",
-            "***TEST***",
-            "/admin/paymentcount"
+            '/getAllBrand',
+            '/getState',
+            '/getCities',
+            '/admin/login',
+            '/user/check-user',
+            '/user/login',
+            '/user/register',
+            '***TEST***',
+            '/admin/paymentcount',
+            '/admin/paymentcount',
+            '/admin/maxminsellingproduct',
+            '/admin/sellingcount'
         ];
 
         if (pathArray.includes(req.path)) {
@@ -93,8 +92,8 @@ async function jwtCheck(req, res, next) {
         } else {
             if (req.headers.authorization) {
                 var user = helpers.jwt.verifyJWT(req.headers.authorization);
-                if (user.role == "admin") {
-                    if (req.path.includes("admin")) {
+                if (user.role == 'admin') {
+                    if (req.path.includes('admin')) {
                         var response = true;
                     } else {
                         res.json({
@@ -103,7 +102,7 @@ async function jwtCheck(req, res, next) {
                         });
                     }
                 } else if (user.role == 'user') {
-                    if (req.path.includes("admin")) {
+                    if (req.path.includes('admin')) {
                         res.json({
                             status: 400,
                             message: lang.user.message.jwt.adminRoutes
@@ -138,83 +137,78 @@ async function jwtCheck(req, res, next) {
     } catch (err) {
         res.json({
             status: 400,
-            message: "Authentication Token has expired. Please logout and login again to continue"
+            message: 'Authentication Token has expired. Please logout and login again to continue'
         });
     }
-
 }
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
     res.status(err.status ? err.status : 400 || 500).send({
         status: err.status ? err.status : 400,
         message: err.message
     });
 });
 
-  // Normalize a port into a number, string, or false.
-  function normalizePort(val) {
+// Normalize a port into a number, string, or false.
+function normalizePort(val) {
     var port = parseInt(val, 10);
 
     if (isNaN(port)) {
-      // named pipe
-      return val;
+        // named pipe
+        return val;
     }
 
     if (port >= 0) {
-      // port number
-      return port;
+        // port number
+        return port;
     }
 
     return false;
-  }
+}
 
-  // Event listener for HTTP server "error" event.
+// Event listener for HTTP server "error" event.
 
-  function onError(error) {
-    console.log('Server',error);
+function onError(error) {
+    console.log('Server', error);
     if (error.syscall !== 'listen') {
-      throw error;
+        throw error;
     }
 
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
+    var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
-      case 'EACCES':
-        console.error(bind + ' requires elevated privileges');
-        process.exit(1);
-        break;
-      case 'EADDRINUSE':
-        console.error(bind + ' is already in use');
-        process.exit(1);
-        break;
-      default:
-        throw error;
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
     }
-  }
+}
 
-  // Event listener for HTTP server "listening" event.
-  function onListening() {
+// Event listener for HTTP server "listening" event.
+function onListening() {
     var addr = server.address();
-    var bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
+    var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
     debug('Listening on ' + bind);
-  }
+}
 
 /* Server createion */
 
 var server = http.createServer(app);
- server.listen(port);
- server.on('error', onError);
- server.on('listening', onListening);
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 module.exports = app;
